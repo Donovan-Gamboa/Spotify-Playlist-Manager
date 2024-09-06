@@ -31,106 +31,124 @@ app.get('/login', (req, res) => {
 
 // Step 2: Handle the callback from Spotify
 app.get('/callback', async (req, res) => {
-    const code = req.query.code || null;
+const code = req.query.code || null;
+
+try {
+  // Debugging: Log the authorization code received
+  console.log('Received Authorization Code:', code);
+
+  const data = await spotifyApi.authorizationCodeGrant(code);
   
-    try {
-      const data = await spotifyApi.authorizationCodeGrant(code);
-      const accessToken = data.body['access_token'];
-      const refreshToken = data.body['refresh_token'];
-  
-      spotifyApi.setAccessToken(accessToken);
-      spotifyApi.setRefreshToken(refreshToken);
-  
-      // Step 3: Use the access token to perform Spotify actions
-      // Call your function to manage the playlist here
-      await updatePlaylist();
-  
-      // Only send a response after all async operations are complete
-      res.send('Authorization successful! You can now close this window.');
-  
-    } catch (err) {
-      // If an error occurs, send an error response
-      res.status(500).send('Error getting tokens: ' + err);
-    }
-  });
+  const accessToken = data.body['access_token'];
+  const refreshToken = data.body['refresh_token'];
+
+  // Debugging: Log the tokens received
+  console.log('Access Token:', accessToken);
+  console.log('Refresh Token:', refreshToken);
+
+  spotifyApi.setAccessToken(accessToken);
+  spotifyApi.setRefreshToken(refreshToken);
+
+  res.send('Authorization successful! You can now close this window.');
+
+  // Proceed with updating the playlist
+  await updatePlaylist();
+
+} catch (err) {
+  console.error('Error during the callback process:', err);
+
+  // Only send a response if headers haven't been sent yet
+  if (!res.headersSent) {
+    res.status(500).send('Error during the callback process: ' + err.message);
+  }
+}
+});
 
 // Step 3: Use the access token to interact with Spotify's API
 async function updatePlaylist() {
-    const playlistId = await getOrCreatePlaylist();
-    
-    // Get followed artists
-    const artists = await getFollowedArtists();
-    
-    // Fetch and filter tracks released within the last week
-    const recentTracks = await getRecentTracks(artists);
-    
-    // Add the tracks to the playlist
-    if (recentTracks.length > 0) {
-      await spotifyApi.addTracksToPlaylist(playlistId, recentTracks);
-      console.log(`${recentTracks.length} tracks added to the playlist.`);
-    } else {
-      console.log('No new tracks to add.');
-    }
+try {
+  const playlistId = await getOrCreatePlaylist();
+  
+  // Fetch recent releases from followed artists (modify according to your logic)
+  const recentReleases = await getRecentReleasesFromFollowedArtists();
+
+  // Clear out old tracks from the playlist
+  await clearPlaylist(playlistId);
+
+  // Add new tracks to the playlist
+  await spotifyApi.addTracksToPlaylist(playlistId, recentReleases);
+
+  console.log('Playlist updated successfully with recent releases.');
+
+} catch (err) {
+  console.error('Error updating the playlist:', err);
+}
+}
+
+async function getOrCreatePlaylist() {
+try {
+  const playlists = await spotifyApi.getUserPlaylists();
+  let playlist = playlists.body.items.find(p => p.name === playlistName);
+
+  if (!playlist) {
+    const newPlaylist = await spotifyApi.createPlaylist(playlistName, {
+      'description': 'Latest releases from your favorite artists.',
+      'public': true
+    });
+    playlist = newPlaylist.body;
   }
-  
-  async function getFollowedArtists() {
-    let artists = [];
-    let data;
-    let after = null;
-  
-    do {
-      data = await spotifyApi.getFollowedArtists({ limit: 50, after });
-      console.log(data)
-      artists = artists.concat(data.body.artists.items);
-      after = data.body.artists.cursors.after;
-    } while (after);
-  
-    return artists;
-  }
-  
-  async function getRecentTracks(artists) {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
-    let tracks = [];
-  
-    for (const artist of artists) {
-      const albums = await spotifyApi.getArtistAlbums(artist.id, { limit: 5, album_type: 'album,single' });
-  
-      for (const album of albums.body.items) {
-        const albumDate = new Date(album.release_date);
-        if (albumDate >= oneWeekAgo) {
-          const albumTracks = await spotifyApi.getAlbumTracks(album.id);
-          tracks = tracks.concat(albumTracks.body.items.map(track => track.uri));
+
+  return playlist.id;
+
+} catch (err) {
+  console.error('Error getting or creating playlist:', err);
+}
+}
+
+async function getRecentReleasesFromFollowedArtists() {
+try {
+  const followedArtists = await spotifyApi.getFollowedArtists({limit: 50});
+  const recentReleases = [];
+
+  for (const artist of followedArtists.body.artists.items) {
+    const albums = await spotifyApi.getArtistAlbums(artist.id, { limit: 50 });
+    for (const album of albums.body.items) {
+      const releaseDate = new Date(album.release_date);
+      const twoWeekAgo = new Date();
+      twoWeekAgo.setDate(twoWeekAgo.getDate() - 14); //Customize number with date range, currently set to recent releases within 14 days
+
+      if (releaseDate > twoWeekAgo) {
+        const tracks = await spotifyApi.getAlbumTracks(album.id);
+        for (const track of tracks.body.items) {
+          recentReleases.push(track.uri);
         }
       }
     }
-  
-    return tracks;
   }
 
-async function getOrCreatePlaylist() {
-  try {
-    const playlists = await spotifyApi.getUserPlaylists();
-    let playlist = playlists.body.items.find(p => p.name === playlistName);
+  return recentReleases;
 
-    if (!playlist) {
-      const newPlaylist = await spotifyApi.createPlaylist(playlistName, {
-        'description': 'Latest releases from your favorite artists.',
-        'public': true
-      });
-      return newPlaylist.body.id;
-    }
+} catch (err) {
+  console.error('Error fetching recent releases:', err);
+}
+}
 
-    return playlist.id;
+async function clearPlaylist(playlistId) {
+try {
+  const playlistTracks = await spotifyApi.getPlaylistTracks(playlistId);
+  const trackUris = playlistTracks.body.items.map(item => item.track.uri);
 
-  } catch (err) {
-    console.error('Error creating or finding playlist:', err);
+  if (trackUris.length > 0) {
+    await spotifyApi.removeTracksFromPlaylist(playlistId, trackUris.map(uri => ({ uri })));
   }
+
+} catch (err) {
+  console.error('Error clearing the playlist:', err);
+}
 }
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-  console.log('Visit http://localhost:8888/login to log in to Spotify');
+console.log(`Server is running at http://localhost:${port}`);
+console.log('Visit http://localhost:8888/login to log in to Spotify');
 });
