@@ -49,10 +49,7 @@ app.get('/callback', async (req, res) => {
     spotifyApi.setAccessToken(accessToken);
     spotifyApi.setRefreshToken(refreshToken);
 
-    res.send('Authorization successful! You can now close this window.');
-
-    // Proceed with updating the playlist
-    await updatePlaylist();
+    res.redirect('/updatePlaylist');
 
   } catch (err) {
     console.error('Error during the callback process:', err);
@@ -63,6 +60,51 @@ app.get('/callback', async (req, res) => {
     }
   }
 });
+
+// Step 3: Display followed artists and their newly released songs
+app.get('/updatePlaylist', async (req, res) => {
+  let followedArtistsInfo = "";
+  let newReleasesInfo = "";
+
+  try {
+    const followedArtists = await spotifyApi.getFollowedArtists({ limit: 50 });
+    let recentReleases = [];
+
+    followedArtistsInfo = "<h2>Your Followed Artists:</h2><ul>";
+    newReleasesInfo = "<h2>New Releases:</h2><ul>";
+
+    for (const artist of followedArtists.body.artists.items) {
+      followedArtistsInfo += `<li>${artist.name}</li>`;
+
+      const albums = await spotifyApi.getArtistAlbums(artist.id, { limit: 50 });
+      for (const album of albums.body.items) {
+        const releaseDate = new Date(album.release_date);
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+        if (releaseDate > twoWeeksAgo) {
+          const tracks = await spotifyApi.getAlbumTracks(album.id);
+          for (const track of tracks.body.items) {
+            recentReleases.push(track.uri);
+            newReleasesInfo += `<li>${track.name} by ${artist.name} (Album: ${album.name})</li>`;
+          }
+        }
+      }
+    }
+
+    followedArtistsInfo += "</ul>";
+    newReleasesInfo += "</ul>";
+
+    await updatePlaylist();
+
+    res.send(`<h1>PLAYLIST UPDATED!</h1>${followedArtistsInfo}${newReleasesInfo}`);
+
+  } catch (err) {
+    console.error('Error during the update process:', err);
+    res.status(500).send('Error during the update process: ' + err.message);
+  }
+});
+
 
 
 // Step 3: Use the access token to interact with Spotify's API
