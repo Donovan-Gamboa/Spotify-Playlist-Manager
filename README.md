@@ -48,9 +48,9 @@ Before using this app, ensure that you have the following installed:
 1. **Create a Spotify Developer Account**:
    If you haven't already, create a Spotify Developer Account. Once logged in, create a new app. You will receive:
 
-    Client ID
+    - Client ID
 
-    Client Secret
+    - Client Secret
 
    You will also need to set a Redirect URI to http://localhost:8888/callback in your Spotify App settings.
 
@@ -85,13 +85,13 @@ http://localhost:8888/login
 
 3. **Log in to your Spotify account and grant the app permissions. You’ll be redirected back to the app, where it will**:
 
-   Retrieve your followed artists.
+   - Retrieve your followed artists.
 
-   Add their recent releases (within the last two weeks) to the playlist.
+   - Add their recent releases (within the last two weeks) to the playlist.
 
-   Remove older tracks from the playlist.
+   - Remove older tracks from the playlist.
 
-   Display the added tracks and followed artists on a web page.
+   - Display the added tracks and followed artists on a web page.
 
 ## Endpoints
  - **/login**: Redirects the user to Spotify’s authorization page.
