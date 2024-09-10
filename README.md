@@ -100,6 +100,7 @@ http://localhost:8888/login
    - Display the added tracks and followed artists on a web page.
 
 4. **Optional: startSpotify.bat**
+
    You can also click the .bat file after it's been moved and edited, and it will launch automatically.
 
 ## Endpoints
