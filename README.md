@@ -31,7 +31,7 @@ Before using this app, ensure that you have the following installed:
 1. **Clone the Repository**:
    First, you'll need to clone the repository to your local machine. Open your terminal or command prompt and run the following command:
    ```bash
-   git clone https://github.com/your-repository/spotify-playlist-manager.git
+   git clone https://github.com/Donovan-Gamboa/Spotify-Playlist-Manager.git
    ```
    After the repository is cloned, navigate to the project directory:
    ```bash
