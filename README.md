@@ -44,8 +44,8 @@ Before using this app, ensure that you have the following installed:
     npm install
     ```
       This command will install all required packages such as express and spotify-web-api-node.
-
-4. **Create a Spotify Developer Account**:
+## Setup
+1. **Create a Spotify Developer Account**:
    If you haven't already, create a Spotify Developer Account. Once logged in, create a new app. You will receive:
 
     Client ID
@@ -54,7 +54,7 @@ Before using this app, ensure that you have the following installed:
 
    You will also need to set a Redirect URI to http://localhost:8888/callback in your Spotify App settings.
 
-6. **Configure Spotify API Credentials**:
+2. **Configure Spotify API Credentials**:
    After setting up your Spotify app, you need to add your credentials to the application.
    Open the index.js file in the root of the project.
    Replace the following placeholders with your Spotify API credentials:
@@ -66,6 +66,36 @@ Before using this app, ensure that you have the following installed:
     
    These credentials will allow the app to authenticate with Spotify's API and manage your playlist.
 
-5. **Set Up the Redirect URI in Spotify Dashboard**:
+3. **Set Up the Redirect URI in Spotify Dashboard**:
   In your Spotify Developer Dashboard, navigate to your app's settings.
   Add http://localhost:8888/callback as a Redirect URI in the "Redirect URIs" section.
+
+## Usage
+1. **Start the server**:
+
+```bash
+node spotify.js
+```
+
+2. **Open your browser and visit**:
+
+```bash
+http://localhost:8888/login
+```
+
+3. **Log in to your Spotify account and grant the app permissions. You’ll be redirected back to the app, where it will**:
+
+   Retrieve your followed artists.
+
+   Add their recent releases (within the last two weeks) to the playlist.
+
+   Remove older tracks from the playlist.
+
+   Display the added tracks and followed artists on a web page.
+
+## Endpoints
+ - **/login**: Redirects the user to Spotify’s authorization page.
+
+ - **/callback**: Receives the Spotify authorization code and exchanges it for an access token.
+
+ - **/updatePlaylist**: Displays your followed artists and the songs added to the playlist.
