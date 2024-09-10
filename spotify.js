@@ -1,12 +1,11 @@
 const express = require('express');
 const SpotifyWebApi = require('spotify-web-api-node');
-const querystring = require('querystring');
 const port = 8888;
 const playlistName = "Recent Releases";
 
 // Spotify credentials
-const clientId = 'c8c43e75f94b432baffedc160d09fc96';
-const clientSecret = '7600f08cb5c34cc498be66dc832f0abf';
+const clientId = 'clientiD'; //YOUR CLINET ID NEEDS TO GO HERE
+const clientSecret = 'clinetSecret'; //YOUR CLIENT SECRET NEEDS TO GO HERE
 const redirectUri = 'http://localhost:8888/callback';
 
 const spotifyApi = new SpotifyWebApi({
