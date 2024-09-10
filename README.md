@@ -1,6 +1,6 @@
 # Spotify Recent Releases Playlist Manager
 
-This Node.js application automatically updates a Spotify playlist with the most recent releases from artists you follow. It also removes older tracks to keep your playlist fresh with releases from the last two weeks. The app allows you to log in to your Spotify account, retrieve followed artists, fetch new releases, and manage a playlist accordingly.
+This Node.js application automatically updates a Spotify playlist with the most recent releases from artists you follow. It also removes older tracks to keep your playlist fresh with releases from the last two weeks (or more if you change the howLongAgo variable). The app allows you to log in to your Spotify account, retrieve followed artists, fetch new releases, and manage a playlist accordingly.
 
 ## Table of Contents
 - [Features](#features)
