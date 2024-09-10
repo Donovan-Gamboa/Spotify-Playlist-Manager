@@ -64,40 +64,34 @@ app.get('/callback', async (req, res) => {
 // Step 3: Display followed artists and their newly released songs
 app.get('/updatePlaylist', async (req, res) => {
   let followedArtistsInfo = "";
-  let newReleasesInfo = "";
+  let playlistInfo = "";
 
   try {
     const followedArtists = await spotifyApi.getFollowedArtists({ limit: 50 });
-    let recentReleases = [];
 
     followedArtistsInfo = "<h2>Your Followed Artists:</h2><ul>";
-    newReleasesInfo = "<h2>New Releases:</h2><ul>";
 
     for (const artist of followedArtists.body.artists.items) {
       followedArtistsInfo += `<li>${artist.name}</li>`;
-
-      const albums = await spotifyApi.getArtistAlbums(artist.id, { limit: 50 });
-      for (const album of albums.body.items) {
-        const releaseDate = new Date(album.release_date);
-        const twoWeeksAgo = new Date();
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-
-        if (releaseDate > twoWeeksAgo) {
-          const tracks = await spotifyApi.getAlbumTracks(album.id);
-          for (const track of tracks.body.items) {
-            recentReleases.push(track.uri);
-            newReleasesInfo += `<li>${track.name} by ${artist.name} (Album: ${album.name})</li>`;
-          }
-        }
-      }
     }
-
     followedArtistsInfo += "</ul>";
-    newReleasesInfo += "</ul>";
 
-    await updatePlaylist();
+    // Update the playlist and fetch the current playlist items
+    const playlistItems = await updatePlaylist();
 
-    res.send(`<h1>PLAYLIST UPDATED!</h1>${followedArtistsInfo}${newReleasesInfo}`);
+    playlistInfo = "<h2>Songs Added to Playlist:</h2><ul>";
+
+    if (playlistItems && playlistItems.length > 0) {
+      playlistItems.forEach(item => {
+        playlistInfo += `<li>${item.track.name} by ${item.track.artists.map(artist => artist.name).join(', ')}</li>`;
+      });
+    } else {
+      playlistInfo += "<li>No songs were added to the playlist.</li>";
+    }
+    playlistInfo += "</ul>";
+
+    // Display followed artists and songs added to the playlist
+    res.send(`<h1>PLAYLIST UPDATED!</h1>${followedArtistsInfo}${playlistInfo}`);
 
   } catch (err) {
     console.error('Error during the update process:', err);
@@ -122,6 +116,10 @@ async function updatePlaylist() {
     await addTracksToPlaylist(playlistId, recentReleases);
 
     console.log('Playlist updated successfully with recent releases.');
+
+    // Fetch the playlist items to display later
+    const playlistItems = await spotifyApi.getPlaylistTracks(playlistId);
+    return playlistItems.body.items;
 
   } catch (err) {
     console.error('Error updating the playlist:', err);
