@@ -52,11 +52,11 @@ Before using this app, ensure that you have the following installed:
 
     - Client Secret
 
-   You will also need to set a Redirect URI to http://localhost:8888/callback in your Spotify App settings.
+    - You will also need to set a Redirect URI to http://localhost:8888/callback in your Spotify App settings.
 
 2. **Configure Spotify API Credentials**:
    After setting up your Spotify app, you need to add your credentials to the application.
-   Open the index.js file in the root of the project.
+   Open the spotify.js file in the root of the project.
    Replace the following placeholders with your Spotify API credentials:
     ```bash
     const clientId = 'YOUR_CLIENT_ID';
