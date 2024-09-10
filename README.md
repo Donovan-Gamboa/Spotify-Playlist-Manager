@@ -129,3 +129,7 @@ The application includes console logs for debugging:
    - **Authorization Code**: Logs the authorization code received from Spotify.
    - **Access and Refresh Tokens**: Logs the access and refresh tokens used for API requests.
    **Errors**: Any errors encountered during playlist updating or API calls will be logged to the console.
+
+## License
+
+The source code for the site is licensed under the MIT license, which you can find in the LICENSE.txt file.
