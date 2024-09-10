@@ -44,6 +44,12 @@ Before using this app, ensure that you have the following installed:
     npm install
     ```
       This command will install all required packages such as express and spotify-web-api-node.
+
+3. **Move startSpotify.bat**:
+   There is a bat file called startSptofy.bat meant to be a quick launch into the application.
+    - Move the file to your desktop
+    - Edit the file so it contains the path to the folder with the spotify.js file 
+
 ## Setup
 1. **Create a Spotify Developer Account**:
    If you haven't already, create a Spotify Developer Account. Once logged in, create a new app. You will receive:
@@ -92,6 +98,9 @@ http://localhost:8888/login
    - Remove older tracks from the playlist.
 
    - Display the added tracks and followed artists on a web page.
+
+4. **Optional: startSpotify.bat**
+   You can also click the .bat file after it's been moved and edited, and it will launch automatically.
 
 ## Endpoints
  - **/login**: Redirects the user to Spotify’s authorization page.
