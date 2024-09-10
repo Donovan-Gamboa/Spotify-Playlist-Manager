@@ -99,3 +99,23 @@ http://localhost:8888/login
  - **/callback**: Receives the Spotify authorization code and exchanges it for an access token.
 
  - **/updatePlaylist**: Displays your followed artists and the songs added to the playlist.
+
+## Functions
+
+- **updatePlaylist()**: Manages the process of retrieving releases, clearing old tracks, and adding new ones.
+
+- **getOrCreatePlaylist()**: Finds or creates a playlist named "Recent Releases".
+
+- **getRecentReleasesFromFollowedArtists()**: Fetches recent album releases (within the last two weeks) from followed artists.
+
+- **clearPlaylist(playlistId)**: Clears all tracks from the specified playlist.
+
+- **addTracksToPlaylist(playlistId, trackUris)**: Adds tracks in batches (max 100 per request) to a playlist.
+
+## Debugging
+
+The application includes console logs for debugging:
+
+   - **Authorization Code**: Logs the authorization code received from Spotify.
+   - **Access and Refresh Tokens**: Logs the access and refresh tokens used for API requests.
+   **Errors**: Any errors encountered during playlist updating or API calls will be logged to the console.
